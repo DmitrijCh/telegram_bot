@@ -1,5 +1,12 @@
 package com.dmitrijch.bot.config;
 
+import com.dmitrijch.bot.telegrambot.MyBot;
+import org.springframework.context.annotation.Bean;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -15,9 +22,8 @@ public class BotConfiguration {
             }
             prop.load(input);
             return prop.getProperty("bot.username");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -29,9 +35,8 @@ public class BotConfiguration {
             }
             prop.load(input);
             return prop.getProperty("bot.token");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

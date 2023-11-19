@@ -1,10 +1,12 @@
 package com.dmitrijch.bot.telegrambot;
 
+import com.dmitrijch.bot.component.DatabaseHelper;
 import com.dmitrijch.bot.config.BotConfiguration;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,6 +22,9 @@ import java.io.IOException;
 public class MyBot extends TelegramLongPollingBot {
 
     private final BotConfiguration botConfig = new BotConfiguration();
+
+    @Autowired
+    private DatabaseHelper databaseHelper;
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -97,10 +102,13 @@ public class MyBot extends TelegramLongPollingBot {
     public void sendHolidaysList(long chatId, JsonNode holidays) {
         StringBuilder messageText = new StringBuilder("Список предстоящих праздников:\n");
         for (JsonNode holiday : holidays) {
+            String countryCode = holiday.get("countryCode").asText();
+            String countryName = databaseHelper.getCountryNameByCode(countryCode);
+
             messageText.append("Дата: ").append(holiday.get("date").asText()).append("\n");
             messageText.append("Местное название: ").append(holiday.get("localName").asText()).append("\n");
             messageText.append("Международное название: ").append(holiday.get("name").asText()).append("\n");
-            messageText.append("Страна: ").append(holiday.get("countryCode").asText()).append("\n\n");
+            messageText.append("Страна: ").append(countryCode).append(" - ").append(countryName).append("\n\n");
         }
 
         SendMessage message = new SendMessage(String.valueOf(chatId), messageText.toString());
